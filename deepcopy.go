@@ -24,14 +24,25 @@ func Iface(iface interface{}) interface{} {
 // Copy creates a deep copy of whatever is passed to it and returns the copy
 // in an interface{}.  The returned value will need to be asserted to the
 // correct type.
-func CopyAny[T any](src any) T {
-	return Copy(src).(T)
+func CopyAny[T any](src T) T {
+	// Make the interface a reflect.Value
+	original := reflect.ValueOf(src)
+
+	// Make a copy of the same type as the original.
+	cpy := reflect.New(original.Type()).Elem()
+
+	// Recursively copy the original.
+	copyRecursive(original, cpy)
+
+	// Return the copy as an interface.
+	return cpy.Interface().(T)
+	// return Copy(src).(T)
 }
 
 // Copy creates a deep copy of whatever is passed to it and returns the copy
 // in an interface{}.  The returned value will need to be asserted to the
 // correct type.
-func Copy(src interface{}) interface{} {
+func Copy(src any) any {
 	if src == nil {
 		return nil
 	}
