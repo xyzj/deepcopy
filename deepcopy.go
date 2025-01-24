@@ -24,6 +24,13 @@ func Iface(iface interface{}) interface{} {
 // Copy creates a deep copy of whatever is passed to it and returns the copy
 // in an interface{}.  The returned value will need to be asserted to the
 // correct type.
+func CopyAny[T any](src any) T {
+	return Copy(src).(T)
+}
+
+// Copy creates a deep copy of whatever is passed to it and returns the copy
+// in an interface{}.  The returned value will need to be asserted to the
+// correct type.
 func Copy(src interface{}) interface{} {
 	if src == nil {
 		return nil
@@ -115,10 +122,9 @@ func copyRecursive(original, cpy reflect.Value) {
 			originalValue := original.MapIndex(key)
 			copyValue := reflect.New(originalValue.Type()).Elem()
 			copyRecursive(originalValue, copyValue)
-			copyKey := Copy(key.Interface())
+			copyKey := CopyAny[any](key.Interface())
 			cpy.SetMapIndex(reflect.ValueOf(copyKey), copyValue)
 		}
-
 	default:
 		cpy.Set(original)
 	}
